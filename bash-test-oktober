@@ -1,0 +1,48 @@
+#!/bin/bash
+
+get_kernel_version() {
+  uname -r
+}
+
+get_free_space() {
+  df -h 2> /dev/null
+}
+
+get_total_mem() {
+  cat /proc/meminfo | grep ^MemTotal
+}
+
+compare_line_count() {
+  local file1=$1
+  local file2=$2
+  if [ -f "$file1" ] && [ -f "$file2" ]
+  then
+    if [ $(wc -l "$file1" | awk '{print $1}') -gt $(wc -l "$file2" | awk '{print $1}') ]
+    then
+      echo $file1
+    elif [ $(wc -l "$file1" | awk '{print $1}') -lt $(wc -l "$file2" | awk '{print $1}') ]
+    then
+      echo $file2
+    fi
+  fi
+}
+
+get_kernel_version
+
+get_free_space
+
+get_total_mem
+
+compare_line_count "$1" "$2"
+
+yum install httpd -y
+adduser webmaster
+mkdir /home/webmaster/.ssh
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBaVwDbVfjWUudsIHLQFdfekvdm2S1eYBCw7tZx0U1+gaXOd5LX2cq3P2YEBImsoUl0c9R0wOlf7w6H1bKLYtaCeyKByiyYUBQyU/VmeFH9RUOw1uJzIuuHaOMVx1GuONzymGhTpiPi0x+2gsBDLtdJCq5AiH/8QHJ7BcNNqgjK8kIHPT6gaaXgboy6hIw5KGOnw1+y9yGRXhRWT4vAjncoK7P1UO3BTcc42OpDOdet1E5iGzYAd6lIF6lpjPuJBTvdYZDt33I6vXCSBBnI8tlx7HPSj0ULP+kHl8MAY2Nqv/aRBG8LQULT/QhmG7+y4LVtASJGnylcMRt1i3ojiIx root@408cd9fb18a8" > /home/webmaster/.ssh/authorized_keys
+rm -rf /var/web
+mkdir /var/www
+touch /var/www/index.html
+wget -P /var/www https://upload.wikimedia.org/wikipedia/commons/9/92/Penguin_Admin.svg
+chown -R webmaster:webmaster /var/www
+chmod 755 /var/www
+chmod 664 /var/www/*
